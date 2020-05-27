@@ -708,7 +708,8 @@ func snapshotView(
   drawHierarchyInKeyWindow: Bool,
   traits: UITraitCollection,
   view: UIView,
-  viewController: UIViewController
+  viewController: UIViewController,
+  sizingScrollView: @escaping @autoclosure () -> UIScrollView?
   )
   -> Async<UIImage> {
     let initialFrame = view.frame
@@ -724,6 +725,10 @@ func snapshotView(
 
     return (view.snapshot ?? Async { callback in
       addImagesForRenderedViews(view).sequence().run { views in
+        
+        if let scrollView = view as? UIScrollView ?? sizingScrollView() {
+            sizeForScrollView(targetSize: config.size, view: view, scrollView: scrollView)
+        }
         callback(
           renderer(bounds: view.bounds, for: traits).image { ctx in
             if drawHierarchyInKeyWindow {
@@ -737,6 +742,30 @@ func snapshotView(
         view.frame = initialFrame
       }
     }).map { dispose(); return $0 }
+}
+
+private func sizeForScrollView(targetSize: CGSize?, view: UIView, scrollView: UIScrollView) {
+    // We want to render the size of the scrollview, so we loop, updating the view until the content size settles
+    var contentSize = CGSize.zero
+    
+    while contentSize != scrollView.contentSize {
+        contentSize = scrollView.contentSize
+
+        var height = contentSize.height + scrollView.frame.minY
+        if #available(iOS 11.0, *) {
+            height += scrollView.adjustedContentInset.top + scrollView.adjustedContentInset.bottom
+        }
+        view.window?.resize(to: CGSize(width: view.bounds.width, height: height))
+        view.setNeedsLayout()
+        view.layoutIfNeeded()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.1))
+    }
+    
+    if let targetHeight = targetSize?.height, view.bounds.height < targetHeight {
+        view.window?.resize(to: CGSize(width: view.bounds.width, height: targetHeight))
+        view.setNeedsLayout()
+        view.layoutIfNeeded()
+    }
 }
 
 private let offscreen: CGFloat = 10_000

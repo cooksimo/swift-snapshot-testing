@@ -167,6 +167,9 @@
 		CA26E17B242D0219008D08A0 /* UIBezierPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA26E16F242D0219008D08A0 /* UIBezierPath.swift */; };
 		CBC57ED5427F5EBD18FDCEFC /* testCreateSnapshotWithLongerExtendedDelimiter1.1.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA9C51757FC5DC679F5DC72 /* testCreateSnapshotWithLongerExtendedDelimiter1.1.swift */; };
 		CC1CC535032FA027BC50AB5B /* testCreateSnapshotWithShorterExtendedDelimiter2.1.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADACB597E6A3CAC5BFEEFB05 /* testCreateSnapshotWithShorterExtendedDelimiter2.1.swift */; };
+		CDEED331247F1F0E00505E41 /* SnapshotTesting-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = CDEED330247F1F0D00505E41 /* SnapshotTesting-Bridging-Header.h */; };
+		CDEED334247F1F7B00505E41 /* UIWindow+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = CDEED332247F1F7B00505E41 /* UIWindow+Resize.m */; };
+		CDEED335247F1F7B00505E41 /* UIWindow+Resize.h in Headers */ = {isa = PBXBuildFile; fileRef = CDEED333247F1F7B00505E41 /* UIWindow+Resize.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CE53F597D12C921A3DA2E8B0 /* NSImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48914A258708D7AC11DC12EF /* NSImage.swift */; };
 		D08F1EABB0BF974C05E74D8F /* SpriteKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4055310797F1D4813ABD0359 /* SpriteKit.swift */; };
 		D3E3E6C974E835048071BCE0 /* SnapshotTesting.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50945BA2653A2A96CFA62431 /* SnapshotTesting.framework */; };
@@ -295,7 +298,7 @@
 		6244D0EADF210BE6E3CE2EE7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		646ABA578B433C2F4DD4A086 /* Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
 		810407271A6CB90161DCE6A0 /* UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
-		8563DC0D660D87E1CDE5D696 /* SnapshotTestingTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SnapshotTestingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8563DC0D660D87E1CDE5D696 /* SnapshotTestingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnapshotTestingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		86367454DF23E14D681FDE27 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		86AF3E4E28A1292D02E080C7 /* testUpdateSeveralSnapshotsSwapingLines1.1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testUpdateSeveralSnapshotsSwapingLines1.1.swift; sourceTree = "<group>"; };
 		8A637034F06E7DF38F2339F4 /* testCreateSnapshotWithExtendedDelimiterSingleLine2.1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testCreateSnapshotWithExtendedDelimiterSingleLine2.1.swift; sourceTree = "<group>"; };
@@ -320,6 +323,9 @@
 		CA26E16E242D0219008D08A0 /* CGPath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGPath.swift; sourceTree = "<group>"; };
 		CA26E16F242D0219008D08A0 /* UIBezierPath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBezierPath.swift; sourceTree = "<group>"; };
 		CB124D18325606D35B7027A6 /* NSViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSViewController.swift; sourceTree = "<group>"; };
+		CDEED330247F1F0D00505E41 /* SnapshotTesting-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SnapshotTesting-Bridging-Header.h"; path = "SnapshotTesting/SnapshotTesting-Bridging-Header.h"; sourceTree = "<group>"; };
+		CDEED332247F1F7B00505E41 /* UIWindow+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWindow+Resize.m"; sourceTree = "<group>"; };
+		CDEED333247F1F7B00505E41 /* UIWindow+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWindow+Resize.h"; sourceTree = "<group>"; };
 		D1FE81FC04984B93B0C27FA6 /* testUpdateSnapshot.1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testUpdateSnapshot.1.swift; sourceTree = "<group>"; };
 		D3B960E2B6E4AAE0BA50F27B /* PlistEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlistEncoder.swift; sourceTree = "<group>"; };
 		D49092873A7A5D6DA623E352 /* String+SpecialCharacters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+SpecialCharacters.swift"; sourceTree = "<group>"; };
@@ -480,6 +486,7 @@
 		9CB41CD4EBF4FCC9BF81E4E6 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				CDEED330247F1F0D00505E41 /* SnapshotTesting-Bridging-Header.h */,
 				86367454DF23E14D681FDE27 /* Info.plist */,
 				25CB6D7740D797F781E85C43 /* SnapshotTesting */,
 			);
@@ -489,6 +496,8 @@
 		D37322FEADE9539AF927F08C /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				CDEED333247F1F7B00505E41 /* UIWindow+Resize.h */,
+				CDEED332247F1F7B00505E41 /* UIWindow+Resize.m */,
 				F479E2BD835B9641B85EB51E /* Internal.swift */,
 				D3B960E2B6E4AAE0BA50F27B /* PlistEncoder.swift */,
 				D49092873A7A5D6DA623E352 /* String+SpecialCharacters.swift */,
@@ -536,6 +545,18 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		CDEED32C247F1DF100505E41 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CDEED335247F1F7B00505E41 /* UIWindow+Resize.h in Headers */,
+				CDEED331247F1F0E00505E41 /* SnapshotTesting-Bridging-Header.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
 		0E84A93796E47328AAE7C80F /* SnapshotTesting_macOS */ = {
 			isa = PBXNativeTarget;
@@ -575,6 +596,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 53535ECD7578718495DC8DA7 /* Build configuration list for PBXNativeTarget "SnapshotTesting_iOS" */;
 			buildPhases = (
+				CDEED32C247F1DF100505E41 /* Headers */,
 				5F135DB42A0325BA355D5E92 /* Sources */,
 			);
 			buildRules = (
@@ -646,6 +668,14 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1020;
+				TargetAttributes = {
+					64F17F6842573B100D61132C = {
+						LastSwiftMigration = 1150;
+					};
+					6C1340F5ED556C5C9B3AE657 = {
+						LastSwiftMigration = 1150;
+					};
+				};
 			};
 			buildConfigurationList = D9A4BF45876C849A308801A2 /* Build configuration list for PBXProject "SnapshotTesting" */;
 			compatibilityVersion = "Xcode 10.0";
@@ -743,6 +773,7 @@
 				E2E1BA4E82EBF5D7E7533485 /* Any.swift in Sources */,
 				90555C6EB17BD465E901043A /* AssertInlineSnapshot.swift in Sources */,
 				AE77649A377D5328DC91D19B /* AssertSnapshot.swift in Sources */,
+				CDEED334247F1F7B00505E41 /* UIWindow+Resize.m in Sources */,
 				29602B6DD2A43E1C13DF1D42 /* Async.swift in Sources */,
 				AAE5EED880A834F69554115C /* CALayer.swift in Sources */,
 				620758875CDFB7D9C6442A75 /* CaseIterable.swift in Sources */,
@@ -949,6 +980,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -958,6 +990,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "co.pointfree.SnapshotTestingTests-iOS";
 				PRODUCT_NAME = SnapshotTestingTests;
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "Sources/SnapshotTesting/Common/SnapshotTestingTests_iOS-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -985,6 +1019,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -994,6 +1029,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "co.pointfree.SnapshotTestingTests-iOS";
 				PRODUCT_NAME = SnapshotTestingTests;
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "Sources/SnapshotTesting/Common/SnapshotTestingTests_iOS-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1133,6 +1169,7 @@
 		CF766E2537E4426A0D7C2694 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1154,6 +1191,8 @@
 				PRODUCT_NAME = SnapshotTesting;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "Sources/SnapshotTesting/SnapshotTesting-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1163,6 +1202,7 @@
 		D9FF7D396CC20A3E59EB1145 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1184,6 +1224,7 @@
 				PRODUCT_NAME = SnapshotTesting;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "Sources/SnapshotTesting/SnapshotTesting-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";

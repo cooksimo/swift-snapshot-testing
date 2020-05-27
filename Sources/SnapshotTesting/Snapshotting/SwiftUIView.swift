@@ -76,7 +76,7 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
           drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
           traits: traits,
           view: controller.view,
-          viewController: controller
+          viewController: controller, sizingScrollView: nil
         )
       }
   }
