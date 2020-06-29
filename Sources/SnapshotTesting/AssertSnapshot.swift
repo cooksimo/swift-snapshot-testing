@@ -254,7 +254,7 @@ public func verifySnapshot<Value, Format>(
       }
       #endif
 
-      guard let (failure, attachments) = snapshotting.diffing.diff(reference, diffable) else {
+      guard let (failure, values) = snapshotting.diffing.diff(reference, diffable) else {
         return nil
       }
 
@@ -263,15 +263,25 @@ public func verifySnapshot<Value, Format>(
       )
       let artifactsSubUrl = artifactsUrl.appendingPathComponent(fileName)
       try fileManager.createDirectory(at: artifactsSubUrl, withIntermediateDirectories: true)
-      let failedSnapshotFileUrl = artifactsSubUrl.appendingPathComponent(snapshotFileUrl.lastPathComponent)
+      let failedSnapshotFileUrl = artifactsSubUrl.appendingPathComponent("failing-\(snapshotFileUrl.lastPathComponent)")
       try snapshotting.diffing.toData(diffable).write(to: failedSnapshotFileUrl)
+        
+      let referenceSnapshotFileUrl = artifactsSubUrl.appendingPathComponent("reference-\(snapshotFileUrl.lastPathComponent)")
+      try snapshotting.diffing.toData(reference).write(to: referenceSnapshotFileUrl)
+        
+        if let diff = values["difference"] {
+            let diffSnapshotFileUrl = artifactsSubUrl.appendingPathComponent("diff-\(snapshotFileUrl.lastPathComponent)")
+            try snapshotting.diffing.toData(diff).write(to: diffSnapshotFileUrl)
+        }
 
-      if !attachments.isEmpty {
+      if !values.isEmpty {
         #if !os(Linux)
         if ProcessInfo.processInfo.environment.keys.contains("__XCODE_BUILT_PRODUCTS_DIR_PATHS") {
           XCTContext.runActivity(named: "Attached Failure Diff") { activity in
-            attachments.forEach {
-              activity.add($0)
+            values.forEach {
+                if let attachment = snapshotting.diffing.attachment($0.key, $0.value) {
+                    activity.add(attachment)
+                }
             }
           }
         }
@@ -279,8 +289,8 @@ public func verifySnapshot<Value, Format>(
       }
 
       let diffMessage = diffTool
-        .map { "\($0) \"\(snapshotFileUrl.path)\" \"\(failedSnapshotFileUrl.path)\"" }
-        ?? "@\(minus)\n\"\(snapshotFileUrl.path)\"\n@\(plus)\n\"\(failedSnapshotFileUrl.path)\""
+        .map { "\($0) \"\(referenceSnapshotFileUrl.path)\" \"\(failedSnapshotFileUrl.path)\"" }
+        ?? "@\(minus)\n\"\(referenceSnapshotFileUrl.path)\"\n@\(plus)\n\"\(failedSnapshotFileUrl.path)\""
       return """
       Snapshot does not match reference.
 
