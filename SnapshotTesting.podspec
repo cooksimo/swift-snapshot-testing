@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   typical unit test.
   DESC
 
-  s.homepage = "https://github.com/pointfreeco/swift-snapshot-testing"
+  s.homepage = "https://github.com/cooksimo/swift-snapshot-testing"
 
   s.license = "MIT"
 
@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   s.social_media_url = "https://twitter.com/pointfreeco"
 
   s.source = {
-    :git => "https://github.com/pointfreeco/swift-snapshot-testing.git",
+    :git => "https://github.com/cooksimo/swift-snapshot-testing.git",
     :tag => s.version
   }
 
