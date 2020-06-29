@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
-  s.name = "SnapshotTesting-TM"
-  s.version = "1.8.0"
+  s.name = "SnapshotTesting"
+  s.version = "1.7.2-tm"
   s.summary = "Tests that save and assert against reference data"
 
   s.description = <<-DESC
