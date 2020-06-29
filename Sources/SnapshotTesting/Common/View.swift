@@ -11,6 +11,8 @@ import UIKit
 import WebKit
 #endif
 
+import XCTest
+
 #if os(iOS) || os(tvOS)
 public struct ViewImageConfig {
   public enum Orientation {
@@ -684,15 +686,28 @@ func prepareView(
       fatalError("'drawHierarchyInKeyWindow' requires tests to be run in a host application")
     }
     window = keyWindow
-    window.frame.size = size
+//    window.frame.size = size
   } else {
     window = Window(
-      config: .init(safeArea: config.safeArea, size: config.size ?? size, traits: traits),
+        config: .init(safeArea: config.safeArea, size: .zero, traits: traits),
       viewController: viewController
     )
   }
+  window.layer.speed = 50.0
   let dispose = add(traits: traits, viewController: viewController, to: window)
 
+    let expectation = XCTestExpectation(description: "wait for resize")
+    viewController.swizzleViewWillTransitionToSize {
+        expectation.fulfill()
+    }
+
+    view.window?.resize(to: size)
+
+    _ = XCTWaiter.wait(for: [expectation], timeout: 5)
+    
+    view.setNeedsLayout()
+    view.layoutIfNeeded()
+    
   if size.width == 0 || size.height == 0 {
     // Try to call sizeToFit() if the view still has invalid size
     view.sizeToFit()
@@ -712,6 +727,8 @@ func snapshotView(
   sizingScrollView: @escaping @autoclosure () -> UIScrollView?
   )
   -> Async<UIImage> {
+    CATransaction.begin()
+    CATransaction.setDisableActions(true)
     let initialFrame = view.frame
     let dispose = prepareView(
       config: config,
@@ -726,46 +743,135 @@ func snapshotView(
     return (view.snapshot ?? Async { callback in
       addImagesForRenderedViews(view).sequence().run { views in
         
+        view.subviews(of: UIActivityIndicatorView.self).forEach { $0.alpha = 0.0 }
+        
         if let scrollView = view as? UIScrollView ?? sizingScrollView() {
-            sizeForScrollView(targetSize: config.size, view: view, scrollView: scrollView)
+            sizeForScrollView(targetSize: config.size, viewController: viewController, view: view, scrollView: scrollView)
         }
-        callback(
-          renderer(bounds: view.bounds, for: traits).image { ctx in
+        
+        CATransaction.commit()
+        
+        // Render the image
+        print("Rendering snapshot")
+        var image = renderer(bounds: view.bounds, for: traits).image { ctx in
             if drawHierarchyInKeyWindow {
-              view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
+                view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
             } else {
-              view.layer.render(in: ctx.cgContext)
+                view.layer.render(in: ctx.cgContext)
             }
-          }
-        )
+        }
+        
+        for i in 0..<20 {
+            print("Rendering snapshot again (attempt \(i+1) of 20)")
+
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+
+            if let scrollView = view as? UIScrollView ?? sizingScrollView() {
+                sizeForScrollView(targetSize: config.size, viewController: viewController, view: view, scrollView: scrollView)
+            }
+
+            CATransaction.commit()
+            
+            let image2 = renderer(bounds: view.bounds, for: traits).image { ctx in
+                if drawHierarchyInKeyWindow {
+                    view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
+                } else {
+                    view.layer.render(in: ctx.cgContext)
+                }
+            }
+            
+            let result = SimplySnapshotting.image(precision: 1).diffing.diff(image, image2)
+            
+            if result == nil {
+                print("Rendering snapshot, subsequent snapshots match found, proceeding")
+                break
+            }
+            else {
+                print("Rendering snapshot, difference found, trying again")
+                image = image2
+            }
+        }
+        
+        callback(image)
         views.forEach { $0.removeFromSuperview() }
         view.frame = initialFrame
       }
     }).map { dispose(); return $0 }
 }
 
-private func sizeForScrollView(targetSize: CGSize?, view: UIView, scrollView: UIScrollView) {
-    // We want to render the size of the scrollview, so we loop, updating the view until the content size settles
-    var contentSize = CGSize.zero
-    
-    while contentSize != scrollView.contentSize {
-        contentSize = scrollView.contentSize
-
-        var height = contentSize.height + scrollView.frame.minY
-        if #available(iOS 11.0, *) {
-            height += scrollView.adjustedContentInset.top + scrollView.adjustedContentInset.bottom
-        }
-        view.window?.resize(to: CGSize(width: view.bounds.width, height: height))
-        view.setNeedsLayout()
-        view.layoutIfNeeded()
-        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.1))
+private func sizeForScrollView(targetSize: CGSize?, viewController: UIViewController, view: UIView, scrollView: UIScrollView) {
+    // Hide this for snapshots, it can appear differently depending on snapshot timing
+    scrollView.showsVerticalScrollIndicator = false
+    if #available(iOS 11.0, *) {
+        scrollView.insetsLayoutMarginsFromSafeArea = false
+        scrollView.contentInsetAdjustmentBehavior = .never
     }
+    
+    updateHeight(view: view, scrollView: scrollView, viewController: viewController, height: 10_000)
+    
+    var height = scrollView.contentSize.height
+    if scrollView != view {
+        height += scrollView.frame.minY
+    }
+    if #available(iOS 11.0, *) {
+        height += scrollView.adjustedContentInset.top + scrollView.adjustedContentInset.bottom
+    }
+    
+    updateHeight(view: view, scrollView: scrollView, viewController: viewController, height: height)
     
     if let targetHeight = targetSize?.height, view.bounds.height < targetHeight {
-        view.window?.resize(to: CGSize(width: view.bounds.width, height: targetHeight))
-        view.setNeedsLayout()
-        view.layoutIfNeeded()
+        updateHeight(view: view, scrollView: scrollView, viewController: viewController, height: targetHeight)
     }
+}
+
+extension UIView {
+    func subviews<T>(of type: T.Type) -> [T] {
+        var views = [T]()
+        if let label = self as? T {
+            views.append(label)
+        }
+        
+        views.append(contentsOf: subviews.map { $0.subviews(of: type) }.flatMap { $0 })
+        
+        return views
+    }
+}
+
+private func updateHeight(view: UIView, scrollView: UIScrollView, viewController: UIViewController, height: CGFloat) {
+    view.subviews(of: UILabel.self).forEach { $0.preferredMaxLayoutWidth = 0.0 }
+    
+    view.frame.size.height = height
+    
+    view.subviews(of: UICollectionView.self).forEach {
+        $0.collectionViewLayout.invalidateLayout()
+        $0.reloadData()
+
+        $0.setNeedsLayout()
+        $0.layoutIfNeeded()
+    }
+    
+    if let tableView = scrollView as? UITableView {
+        let header = tableView.tableHeaderView
+        print("Header pre-height: \(header?.frame.height ?? 0)")
+        header?.invalidateIntrinsicContentSize()
+        header?.setNeedsLayout()
+        header?.layoutIfNeeded()
+        RunLoop.current.run(until: Date())
+        tableView.tableHeaderView = header
+        
+        print("Header post-height: \(header?.frame.height ?? 0)")
+        
+        tableView.reloadData()
+        
+        tableView.setNeedsLayout()
+        tableView.layoutIfNeeded()
+    }
+    
+    RunLoop.current.run(until: Date())
+    view.setNeedsLayout()
+    view.layoutIfNeeded()
+    RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.1))
 }
 
 private let offscreen: CGFloat = 10_000
@@ -773,7 +879,14 @@ private let offscreen: CGFloat = 10_000
 func renderer(bounds: CGRect, for traits: UITraitCollection) -> UIGraphicsImageRenderer {
   let renderer: UIGraphicsImageRenderer
   if #available(iOS 11.0, tvOS 11.0, *) {
-    renderer = UIGraphicsImageRenderer(bounds: bounds, format: .init(for: traits))
+    let format = UIGraphicsImageRendererFormat(for: traits)
+    if #available(iOS 12.0, *) {
+        format.preferredRange = .standard
+    }
+    else {
+        format.prefersExtendedRange = false
+    }
+    renderer = UIGraphicsImageRenderer(bounds: bounds, format: format)
   } else {
     renderer = UIGraphicsImageRenderer(bounds: bounds)
   }
@@ -822,6 +935,10 @@ private func add(traits: UITraitCollection, viewController: UIViewController, to
   return {
     rootViewController.beginAppearanceTransition(false, animated: false)
     rootViewController.endAppearanceTransition()
+    
+    viewController.willMove(toParent: nil)
+    viewController.removeFromParent()
+    
     window.rootViewController = nil
   }
 }
@@ -896,3 +1013,71 @@ extension Array {
     }
   }
 }
+
+var associatedKey: UInt8 = 0
+var targetKey: UInt8 = 0
+var isSwizzledKey: UInt8 = 0
+extension UIViewController {
+    var sizeTransitionCompletion: (() -> Void)? {
+        get {
+            return objc_getAssociatedObject(self, &associatedKey) as? () -> Void
+        }
+        set(newValue) {
+            objc_setAssociatedObject(self, &associatedKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+        }
+    }
+    
+    var targetViewController: UIViewController? {
+        get {
+            return objc_getAssociatedObject(self, &targetKey) as? UIViewController
+        }
+        set(newValue) {
+            objc_setAssociatedObject(self, &targetKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+        }
+    }
+    
+    static var isSwizzled: Bool {
+        get {
+            return objc_getAssociatedObject(self, &isSwizzledKey) as? Bool ?? false
+        }
+        set(newValue) {
+            objc_setAssociatedObject(self, &isSwizzledKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+        }
+    }
+    
+    @objc func swizzleViewWillTransitionToSize(completion: (() -> Void)?) {
+        print("\(Date()) swizzleViewWillTransitionToSize called on \(self) with existing target \(targetViewController)")
+        sizeTransitionCompletion = completion
+        targetViewController = self
+        guard !UIViewController.isSwizzled else { return }
+        UIViewController.isSwizzled = true
+        let originalSelector = #selector(UIViewController.viewWillTransition(to:with:))
+        let swizzledSelector = #selector(UIViewController.swizzledViewWillTransition(to:with:))
+        
+        if let originalMethod = class_getInstanceMethod(type(of: self), originalSelector),
+            let swizzledMethod = class_getInstanceMethod(type(of: self), swizzledSelector) {
+            method_exchangeImplementations(originalMethod, swizzledMethod)
+        }
+        else {
+            assertionFailure("Couldn't swizzle viewWillTransition(to:with:)")
+        }
+    }
+    
+    @objc func swizzledViewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        self.swizzledViewWillTransition(to: size, with: coordinator) // Calls the original
+        
+        guard self == targetViewController else { return }
+        
+        print("\(Date()): \(self) - viewWillTransition(to: \(size) with:) called")
+        
+        coordinator.animate(alongsideTransition: { _ in
+            
+        }) { _ in
+            print("\(Date()): \(self) - viewWillTransition(to:with:) completion called")
+            self.sizeTransitionCompletion?()
+            // Unswizzle
+            self.sizeTransitionCompletion = nil
+        }
+    }
+}
+
