@@ -752,18 +752,16 @@ func snapshotView(
         CATransaction.commit()
         
         // Render the image
-        print("Rendering snapshot")
         var image = renderer(bounds: view.bounds, for: traits).image { ctx in
-            if drawHierarchyInKeyWindow {
-                view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
-            } else {
+            if view.bounds.height > 4096 || view.bounds.width > 4096 {
                 view.layer.render(in: ctx.cgContext)
+            }
+            else {
+                view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
             }
         }
         
-        for i in 0..<20 {
-            print("Rendering snapshot again (attempt \(i+1) of 20)")
-
+        for _ in 0..<20 {
             CATransaction.begin()
             CATransaction.setDisableActions(true)
 
@@ -772,17 +770,17 @@ func snapshotView(
             }
 
             CATransaction.commit()
-            
             let image2 = renderer(bounds: view.bounds, for: traits).image { ctx in
-                if drawHierarchyInKeyWindow {
-                    view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
-                } else {
+                if view.bounds.height > 4096 || view.bounds.width > 4096 {
                     view.layer.render(in: ctx.cgContext)
                 }
+                else {
+                    view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
+                }
             }
-            
+
             let result = SimplySnapshotting.image(precision: 1).diffing.diff(image, image2)
-            
+
             if result == nil {
                 print("Rendering snapshot, subsequent snapshots match found, proceeding")
                 break
@@ -850,20 +848,17 @@ private func updateHeight(view: UIView, scrollView: UIScrollView, viewController
         $0.setNeedsLayout()
         $0.layoutIfNeeded()
     }
-    
+
     if let tableView = scrollView as? UITableView {
         let header = tableView.tableHeaderView
-        print("Header pre-height: \(header?.frame.height ?? 0)")
         header?.invalidateIntrinsicContentSize()
         header?.setNeedsLayout()
         header?.layoutIfNeeded()
         RunLoop.current.run(until: Date())
         tableView.tableHeaderView = header
-        
-        print("Header post-height: \(header?.frame.height ?? 0)")
-        
+
         tableView.reloadData()
-        
+
         tableView.setNeedsLayout()
         tableView.layoutIfNeeded()
     }
